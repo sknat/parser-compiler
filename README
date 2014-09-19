@@ -1,5 +1,16 @@
-Interpréteur pour la calculatrice de base
-=========================================
+# Generation and auto generation of syntaxix analysers
+
+This project is a java grammar parser that is intended to show the ability of a complier to compile itself (YACC - like)
+
+This code is distributed under the GPL3 licence,
+Original authors being Nathan Skrzypczak and Alexandre Nolin, June 2013
+
+
+# Code documentation & building process (in french)
+
+
+
+## Interpréteur pour la calculatrice de base
 
 L'objectif est d'interpréter une grammaire du type suivant (implémentant une calculatrice simple), et de réussir à parser des expressions de la forme 1+2*2
 
@@ -22,8 +33,8 @@ int -> { $1 }
 
 
 
-Lexeur de la calculatrice de Base
----------------------------------
+### Lexeur de la calculatrice de Base
+
 
 La toute première étape aura été de réaliser un lexeur adapté aux besoins du code. Nous n'avons en effet pas besoin ici d'investir dans l'utilisation de bibliothèques plus évoluées, à moins de se lancer dans un usage plus approfondi de l'interpréteur.
 
@@ -33,8 +44,7 @@ Les objets choisis pour les entrées/sorties seront tout d'abord des BufferReade
 
 Par la suite, pour la gestion de fichiers, le type retenu a été RandomAccessFile, qui a été étendu pour lui ajouter les capacités de marquage des BufferedReader d'une manière plus simple et compréhensible. L'interprétation des grammaires en l’absence d'une possibilité de faire usage d'un oracle nécessitait en effet une capacité de marquage étendue (en particulier réaliser plusieurs marques sur le flux, stockées dans une pile, et la capacité de revenir à la dernière marque connue).
 
-Parseur de la calculatrice de base
-----------------------------------
+### Parseur de la calculatrice de base
 
 Une des premières remarques que l'on peut réaliser et que cette grammaire est assez ambiguë, en particulier sur la prévalence des opérateurs – et / qui ne jouissent pas du même caractère commutatif que * et +, alors qu'ils sont placés au même statut dans la grammaire. Une expression comme 1 – 2 + 3 est donc équivalente à 1 – (2 + 3) dans ce contexte. C'est un problème qui s'est posé dès ce stade de la programmation, mais il s'est avéré qu'étant intrinsèque à la grammaire, il n'est pas du ressort de l'interpréteur que nous écrivons de s'en préoccuper.
 
@@ -47,8 +57,7 @@ La réalisation du parseur sera donc faite avec l'idée d'une généralisation d
 
 Tout ceci en gardant à l'esprit que le code doit pouvoir être généré le plus simplement possible par des boucles et de la récursivité structurelle.
 
-Interpréteur pour la grammaire des grammaires
----------------------------------------------
+## Interpréteur pour la grammaire des grammaires
 
 La première étape de cette réalisation est l'écriture de la grammaire des grammaires :
 
@@ -97,8 +106,7 @@ String
 ;;
 
 
-Réalisation du parseur des grammaires
--------------------------------------
+### Réalisation du parseur des grammaires
 
 L'analyse des grammaires ont donné lieu à de nombreuses modifications du code, même si les bases sont restées globalement identiques.
 
@@ -133,11 +141,9 @@ int -> [[ $1 ]]
 ;;
 
 
-Utilisation
-===========
+## Utilisation
 
-Structure du projet
--------------------
+### Structure du projet
 
 Le projet contient différents packages :
 
@@ -159,7 +165,9 @@ Le projet contient différents packages :
 * out, qui contient la sortie de l'interpréteur (rassemblé en un fichier pour plus de simplicité).
 Le fichier java construit par RunGrammar admet des dépendance vers shared.*
 
-Pour compiler et lancer l'interpréteur
+### Mode d'emploi
+
+#### Pour compiler et lancer l'interpréteur
 * Se placer dans le dossier du projet
 
 javac -d bin -sourcepath src src/grammar/RunGrammar.java
@@ -175,7 +183,7 @@ On peut alors lancer le programme sur une entrée clavier ou fichier ( &f nomduf
 Les scripts run.bat et run.sh exécutent ce traitement.
 
 
-Exemples de grammaires
+### Exemples de grammaires
 
 On pourra tester les grammaires :
 
