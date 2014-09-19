@@ -1,0 +1,13 @@
+Sliste ::= 
+   i ':: liste   -> [[ (new Integer($1)).toString()+$3  ]]
+ | i           -> [[ (new Integer($1)).toString() ]]
+;;
+
+Ii ::= 
+   int -> [[ $1 ]]
+ | b '~ int -> [[ $3); if ($1==false) {res=new VInteger(0);}// ]]
+;;
+
+Bb ::= 
+   boolean -> [[ $1 ]]
+;;

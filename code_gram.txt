@@ -1,0 +1,1 @@
+expr ::= prod '+ expr  -> { $1 + $3 } | prod '- expr  -> { $1 - $3 } | prod -> { $1 } ;; prod ::= fun '* prod -> { $1 * $3 } | fun '/ prod   -> { $1 / $3 } | fun -> { $1 } ;; fun ::= int          -> { $1 } | '( expr ')   -> { $2 } ;;
