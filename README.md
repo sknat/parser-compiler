@@ -1,4 +1,4 @@
-# Generation and auto generation of syntaxix analysers
+# Auto generation of syntaxic analysers
 
 This project is a java grammar parser that is intended to show the ability of a complier to compile itself (YACC - like)
 
@@ -6,14 +6,12 @@ This code is distributed under the GPL3 licence,
 Original authors being Nathan Skrzypczak and Alexandre Nolin, June 2013
 
 
-# Code documentation & building process (in french)
-
-
+# Code documentation (in french)
 
 ## Interpréteur pour la calculatrice de base
 
-L'objectif est d'interpréter une grammaire du type suivant (implémentant une calculatrice simple), et de réussir à parser des expressions de la forme 1+2*2
-
+L'objectif est d'interpréter une grammaire du type suivant (implémentant une calculatrice simple), et de réussir à parser des expressions de la forme `1+2*2`
+```
 expr ::=
 prod '+ expr -> { $1 + $3 }
 | prod '- expr -> { $1 - $3 }
@@ -30,7 +28,7 @@ fun ::=
 int -> { $1 }
 | '( expr ') -> { $2 }
 ;;
-
+```
 
 
 ### Lexeur de la calculatrice de Base
@@ -38,7 +36,7 @@ int -> { $1 }
 
 La toute première étape aura été de réaliser un lexeur adapté aux besoins du code. Nous n'avons en effet pas besoin ici d'investir dans l'utilisation de bibliothèques plus évoluées, à moins de se lancer dans un usage plus approfondi de l'interpréteur.
 
-Avec ce souci de simplicité, il a été rapidement fait le choix d'utiliser les espaces comme séparateurs entre les différents lexèmes. Cela génère de la complexité à l'entrée (il faut donner 1 + 2 * 2 et non 1+2*2) mais permet la gestion d'expressions plus complexes sans avoir besoin de s'attarder sur le Lexer, qui n'est ici pas le point central.
+Avec ce souci de simplicité, il a été rapidement fait le choix d'utiliser les espaces comme séparateurs entre les différents lexèmes. Cela génère de la complexité à l'entrée (il faut donner `1 + 2 * 2 et non 1+2*2`) mais permet la gestion d'expressions plus complexes sans avoir besoin de s'attarder sur le Lexer, qui n'est ici pas le point central.
 
 Les objets choisis pour les entrées/sorties seront tout d'abord des BufferReader (java.io) construits à partir de StringReader, et leurs équivalents en écriture. Ce pour des raisons de facilité d'écriture et de rapidité sur la manipulation de chaînes avec l'opérateur « + ». 
 
@@ -46,7 +44,7 @@ Par la suite, pour la gestion de fichiers, le type retenu a été RandomAccessFi
 
 ### Parseur de la calculatrice de base
 
-Une des premières remarques que l'on peut réaliser et que cette grammaire est assez ambiguë, en particulier sur la prévalence des opérateurs – et / qui ne jouissent pas du même caractère commutatif que * et +, alors qu'ils sont placés au même statut dans la grammaire. Une expression comme 1 – 2 + 3 est donc équivalente à 1 – (2 + 3) dans ce contexte. C'est un problème qui s'est posé dès ce stade de la programmation, mais il s'est avéré qu'étant intrinsèque à la grammaire, il n'est pas du ressort de l'interpréteur que nous écrivons de s'en préoccuper.
+Une des premières remarques que l'on peut réaliser et que cette grammaire est assez ambiguë, en particulier sur la prévalence des opérateurs `–` et `/` qui ne jouissent pas du même caractère commutatif que `*` et `+`, alors qu'ils sont placés au même statut dans la grammaire. Une expression comme `1 – 2 + 3` est donc équivalente à `1 – (2 + 3)` dans ce contexte. C'est un problème qui s'est posé dès ce stade de la programmation, mais il s'est avéré qu'étant intrinsèque à la grammaire, il n'est pas du ressort de l'interpréteur que nous écrivons de s'en préoccuper.
 
 La réalisation du parseur sera donc faite avec l'idée d'une généralisation de ce traitement pour pouvoir l'automatiser dans un deuxième temps. On s'accorde ainsi sur une syntaxe stricte des objets et procédures considérées, pour l'itérée expr de la grammaire :
 
@@ -60,7 +58,7 @@ Tout ceci en gardant à l'esprit que le code doit pouvoir être généré le plu
 ## Interpréteur pour la grammaire des grammaires
 
 La première étape de cette réalisation est l'écriture de la grammaire des grammaires :
-
+```
 EGram ::=
 EEs EGramNxt
 ;;
@@ -104,7 +102,7 @@ ESchemeNxt '->
 ETerminal ::=
 String
 ;;
-
+```
 
 ### Réalisation du parseur des grammaires
 
@@ -116,12 +114,13 @@ code.
 
 Un point décisif, et qui aura suscité quelques difficultés est celui de l’absence d'oracle. N'imposant aucun condition générique sur le contenu d'une itérée de la grammaire, cette dernière peut contenir des schémas entièrement différents, qui ne permettrons pas de déterminer au préalable le type d'un texte rencontré. Il est également impossible de savoir à quel niveau le programme se rendant compte que le texte qu'il lit n'est pas du type qu'il considère actuellement.
 
-Pour ceci, le code utilise les Exceptions, qui sont interceptées par les procédures génériques de type Eexpr. On y teste dans l'ordre de lecture de la source (de haut en bas) les différents schémas (consumeEexpr_1, consumeEexpr_2, ...) en changeant à toute rencontre d'exception. Le parseur retourne ainsi le premier schéma correspondant dans son sens de lecture (de haut en bas donc). Cela permet de donner une interprétation aux résultats obtenus avec une grammaire ambiguë, qui est interprétée selon la première solution valide rencontrée. 
+Pour ceci, le code utilise les Exceptions, qui sont interceptées par les procédures génériques de type Eexpr. On y teste dans l'ordre de lecture de la source (de haut en bas) les différents schémas `(consumeEexpr_1, consumeEexpr_2, ...)` en changeant à toute rencontre d'exception. Le parseur retourne ainsi le premier schéma correspondant dans son sens de lecture (de haut en bas donc). Cela permet de donner une interprétation aux résultats obtenus avec une grammaire ambiguë, qui est interprétée selon la première solution valide rencontrée. 
 
 Par ailleurs, pour permettre l'utilisation de différents types (Booléens, Chaînes de caractères et entiers, la syntaxe a été légèrement modifiée de manière à indiquer (par B,S ou I devant chaque nom d'itérée) le type dans lequel il doit être évalué. 
 
 De la même manière, pour ne pas entrer en conflit avec la syntaxe java, les accolades de code ont été remplacées par des doubles crochets, ce qui donne la syntaxe suivante pour la calculatrice de
 base :
+```
 Iexpr ::=
 prod '+ expr -> [[ $1 + $3 ]]
 | prod '- expr -> [[ $1 - $3 ]]
@@ -139,7 +138,7 @@ Ifun ::=
 int -> [[ $1 ]]
 | '( expr ') -> [[ $2 ]]
 ;;
-
+```
 
 ## Utilisation
 
@@ -163,22 +162,23 @@ Le projet contient différents packages :
  - MarktRandomAccessFile : classe étendant RandomAccessFile, fournissant un accès en lecture et écriture aux fichiers, avec la possibilité de déplacer la tête de lecture et de marquer les positions.
  - Value, conteneurs de valeurs terminales
 * out, qui contient la sortie de l'interpréteur (rassemblé en un fichier pour plus de simplicité).
-Le fichier java construit par RunGrammar admet des dépendance vers shared.*
+Le fichier java construit par RunGrammar admet des dépendance vers `shared.*`
 
 ### Mode d'emploi
 
 #### Pour compiler et lancer l'interpréteur
 * Se placer dans le dossier du projet
-
+```
 javac -d bin -sourcepath src src/grammar/RunGrammar.java
 java -cp bin grammar.RunGrammar
-
-* Une fois dans le programme, faire &f gr.txt pour la grammaire d'exemple
+```
+* Une fois dans le programme, faire `&f gr.txt` pour la grammaire d'exemple
 
 Pour compiler et lancer le résultat, faire
-
+```
 javac -d bin -sourcepath src src/out/RunOutput.java
 java -cp bin out.RunOutput
+```
 On peut alors lancer le programme sur une entrée clavier ou fichier ( &f nomdufichier )
 Les scripts run.bat et run.sh exécutent ce traitement.
 
@@ -187,6 +187,6 @@ Les scripts run.bat et run.sh exécutent ce traitement.
 
 On pourra tester les grammaires :
 
-* grammar_calc.txt sur une entrée de la forme 1 + 2 * ( 3 + 4 )
-* grammar_bool.txt sur une entrée de la forme ! false & true
-* grammar_string.txt sur une entrée de la forme " foo " 0 :: " oobar "
+* grammar_calc.txt sur une entrée de la forme `1 + 2 * ( 3 + 4 )`
+* grammar_bool.txt sur une entrée de la forme `! false & true`
+* grammar_string.txt sur une entrée de la forme `" foo " 0 :: " oobar "`
